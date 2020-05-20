@@ -1,4 +1,4 @@
-package cloud.liyan.springbootapi;
+package cloud.liyan.springbootapi.util;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,13 +24,21 @@ public class TokenUtil {
         calendar.setTime(new Date());
         calendar.add(Calendar.SECOND, EXPIRATION_TIME);
         Date date = calendar.getTime();
-        return Jwts.builder().setClaims(claims).setExpiration(date).signWith(SignatureAlgorithm.ES256, TOKEN_SECRET).compact();
+        return Jwts.builder().setClaims(claims).setExpiration(date).signWith(SignatureAlgorithm.HS512, TOKEN_SECRET).compact();
     }
 
-    public Map<String, Object> validateTokenAndGetClaims(String token) {
+    public static Map<String, Object> validateTokenAndGetClaims(String token) {
+        Map<String, Object> claims = null;
         if (StringUtils.isEmpty(token)) {
             return null;
         }
-        return Jwts.parser().setSigningKey(TOKEN_SECRET).parseClaimsJws(token.replace(TOKEN_PREFIX, "")).getBody();
+        try {
+            claims = Jwts.parser().setSigningKey(TOKEN_SECRET).parseClaimsJws(token.replace(TOKEN_PREFIX, "")).getBody();
+        } catch (Exception e) {
+
+        }
+        return claims;
+
+
     }
 }
